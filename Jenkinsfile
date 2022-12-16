@@ -6,9 +6,9 @@ node {
     def curWorkDir
     def userCounter = 0
     def dirCounter = 0
-    //stage('Git Clone') {
-    //    git(branch:'master', url:'https://github.com/dfx-open-study/network_security_study.git')
-    //}
+    stage('Git Clone') {
+        git(url:'https://github.com/dfx-open-study/network_security_study.git')
+    }
 
     stage('Check File change') {
         def existsFile = fileExists('lastDeployCommitId')
