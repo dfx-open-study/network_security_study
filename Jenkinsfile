@@ -1,3 +1,5 @@
+import groovy.json.JsonOutput
+
 node {
     def codeDir = 'study_code'
     def teamsUrl = 'https://o365hanbat.webhook.office.com/webhookb2/5371f5fd-f356-4ec5-8ebb-20dca50659d1@3109d4ab-a27d-423a-9e49-89bd4003003a/IncomingWebhook/7a88e98ec41047a9bcd9a04c86537f37/c0dae810-7805-4765-b4fb-25219cdadd79'
@@ -8,32 +10,6 @@ node {
     def curWorkDir
     def userCounter = 0
     def dirCounter = 0
-    JsonBuilder builder = new JsonBuilder()
-
-    builder {
-        '@type'('MessageCard')
-        '@context'(extentionUrl)
-        themeColor('0072C6')
-        title
-        sections(
-            [
-                {
-                    facts(
-                        [
-                            {
-                                name
-                                value
-                            }
-                            {
-                                name
-                                value
-                            }
-                        ]
-                    )
-                }
-            ]
-        )
-    }
 
     stage('Git Clone') {
         git(url:'https://github.com/dfx-open-study/network_security_study.git')
@@ -76,16 +52,38 @@ node {
                 if(dirname == codeDir) {
                     if(curUserName != ModifiedSplitted[1]) {
                         if(userCounter != 0) {
-                            builder.title = curUserName + ' Build FAIL' + nowDeployCommitId
-                            builder.sections[0].facts[0].name = 'Result'
-                            builder.sections[0].facts[0].value = 'FAIL'
-                            builder.sections[0].facts[1].name = 'Reason'
-                            builder.sections[0].facts[1].value = 'other user directory use!'
-                            writeFile(file: 'jsonResult', text:builder.toPrettyString(), encoding: 'UTF-8')
+
+                            def jsonData = [
+                                '@type' : "MessageCard",
+                                '@context' : extentionUrl,
+                                summary : curUserName + " Build FAIL",
+                                themeColor : "0072C6",
+                                title : curUserName + " Build FAIL",
+                                sections:[
+                                    [
+                                        facts:[
+                                            [
+                                                name: "Result",
+                                                value: "FAIL"
+                                            ],
+                                            [
+                                                name: "Reason",
+                                                value: "other user directory use!"
+                                            ]
+                                        ],
+                                        text : "Commit ID : " + nowDeployCommitId
+                                    ]
+                                ]
+                            ]
+
+                            def json_str = JsonOutput.toJson(jsonData)
+                            def json_beauty = JsonOutput.prettyPrint(json_str)
+                            writeFile(file: 'jsonResult', text:json_beauty, encoding: 'UTF-8')
                             bat(script: """curl -d @jsonResult -H "Content-Type: Application/JSON" -X POST ${teamsUrl}""")
+
                             println('other user directory use!')
-                            currentBuild.result = 'FAILURE'
-                            return 1
+                            writeFile(file: 'lastDeployCommitId', text:nowDeployCommitId, encoding: 'UTF-8')
+                            error("Build failed because of other user directory use")
                         }
                         userCounter++
                     }
@@ -93,12 +91,38 @@ node {
                     
                     if(curWorkDir != ModifiedSplitted[2]) {
                         if(dirCounter != 0) {
-                            notiTitle = curUserName + ' Build Result' + nowDeployCommitId
-                            notiText = 'Result : FAIL\n' + 'reason : mutiple work directory use!\n'
-                            bat(script: """curl -d "{\"@context\":\"${extentionUrl}\",\"@type\":\"MessageCard\",\"themeColor\":\"0072C6\",\"title\":\"${notiTitle}\",\"text\":\"${notiText}\"}" -H "Content-Type: Application/JSON" -X POST ${teamsUrl}""")
+
+                            def jsonData = [
+                                '@type' : "MessageCard",
+                                '@context' : extentionUrl,
+                                summary : curUserName + " Build FAIL",
+                                themeColor : "0072C6",
+                                title : curUserName + " Build FAIL",
+                                sections:[
+                                    [
+                                        facts:[
+                                            [
+                                                name: "Result",
+                                                value: "FAIL"
+                                            ],
+                                            [
+                                                name: "Reason",
+                                                value: "mutiple work directory use!"
+                                            ]
+                                        ],
+                                        text : "Commit ID : " + nowDeployCommitId
+                                    ]
+                                ]
+                            ]
+
+                            def json_str = JsonOutput.toJson(jsonData)
+                            def json_beauty = JsonOutput.prettyPrint(json_str)
+                            writeFile(file: 'jsonResult', text:json_beauty, encoding: 'UTF-8')
+                            bat(script: """curl -d @jsonResult -H "Content-Type: Application/JSON" -X POST ${teamsUrl}""")
+
                             println('mutiple work directory use!')
-                            currentBuild.result = 'FAILURE'
-                            return 1
+                            writeFile(file: 'lastDeployCommitId', text:nowDeployCommitId, encoding: 'UTF-8')
+                            error("Build failed because of mutiple work directory use")
                         }
                         dirCounter++
                     }
@@ -122,29 +146,100 @@ node {
             buildState = powershell(script:"""MSBuild.exe ${fileName}""", returnStatus: true)
 
             if(buildState == 0) {
-                builder.title = curUserName + ' Build SUCCESS' + nowDeployCommitId
-                builder.sections[0].facts[0].name = 'Result'
-                builder.sections[0].facts[0].value = 'SUCCESS'
-                builder.sections[0].facts[1].name = 'Reason'
-                builder.sections[0].facts[1].value = 'good'
-                writeFile(file: 'jsonResult', text:builder.toPrettyString(), encoding: 'UTF-8')
+
+                def jsonData = [
+                    '@type' : "MessageCard",
+                    '@context' : extentionUrl,
+                    summary : curUserName + " Build SUCCESS",
+                    themeColor : "0072C6",
+                    title : curUserName + " Build SUCCESS",
+                    sections:[
+                        [
+                            facts:[
+                                [
+                                    name: "Result",
+                                    value: "SUCCESS"
+                                ],
+                                [
+                                    name: "Reason",
+                                    value: "you are the best!"
+                                ]
+                            ],
+                            text : "Commit ID : " + nowDeployCommitId
+                        ]
+                    ]
+                ]
+
+                def json_str = JsonOutput.toJson(jsonData)
+                def json_beauty = JsonOutput.prettyPrint(json_str)
+                writeFile(file: 'jsonResult', text: json_beauty, encoding: 'UTF-8')
                 bat(script: """curl -d @jsonResult -H "Content-Type: Application/JSON" -X POST ${teamsUrl}""")
-                //notiTitle = curUserName + ' Build Result' + nowDeployCommitId
-                //notiText = 'Result : SUCCESS\n'
-                //bat(script: """curl -d "{\"@context\":\"${extentionUrl}\",\"@type\":\"MessageCard\",\"themeColor\":\"0072C6\",\"title\":\"${notiTitle}\",\"text\":\"${notiText}\"}" -H "Content-Type: Application/JSON" -X POST ${teamsUrl}""")
+
                 println('Build Success!!')
             }
             else {
-                notiTitle = curUserName + ' Build Result' + nowDeployCommitId
-                notiText = 'Result : FAIL\n' + 'reason : build fail\n'
-                bat(script: """curl -d "{\"@context\":\"${extentionUrl}\",\"@type\":\"MessageCard\",\"themeColor\":\"0072C6\",\"title\":\"${notiTitle}\",\"text\":\"${notiText}\"}" -H "Content-Type: Application/JSON" -X POST ${teamsUrl}""")
+                def jsonData = [
+                    '@type' : "MessageCard",
+                    '@context' : extentionUrl,
+                    summary : curUserName + " Build FAIL",
+                    themeColor : "0072C6",
+                    title : curUserName + " Build FAIL",
+                    sections:[
+                        [
+                            facts:[
+                                [
+                                    name: "Result",
+                                    value: "FAIL"
+                                ],
+                                [
+                                    name: "Reason",
+                                    value: "compile or linking error!"
+                                ]
+                            ],
+                            text : "Commit ID : " + nowDeployCommitId
+                        ]
+                    ]
+                ]
+
+                def json_str = JsonOutput.toJson(jsonData)
+                def json_beauty = JsonOutput.prettyPrint(json_str)
+                writeFile(file: 'jsonResult', text: json_beauty, encoding: 'UTF-8')
+                bat(script: """curl -d @jsonResult -H "Content-Type: Application/JSON" -X POST ${teamsUrl}""")
+
                 println('Build Fail!!')
+                writeFile(file: 'lastDeployCommitId', text:nowDeployCommitId, encoding: 'UTF-8')
+                error("Build failed because of compile or linking error")
             }
             
         } else {
-            notiTitle = curUserName + ' Build Result' + nowDeployCommitId
-            notiText = 'Result : PENDING\n' + 'reason : not include source change\n'
-            bat(script: """curl -d "{\"@context\":\"${extentionUrl}\",\"@type\":\"MessageCard\",\"themeColor\":\"0072C6\",\"title\":\"${notiTitle}\",\"text\":\"${notiText}\"}" -H "Content-Type: Application/JSON" -X POST ${teamsUrl}""")
+            def jsonData = [
+                '@type' : "MessageCard",
+                '@context' : extentionUrl,
+                summary : curUserName + " Build PENDING",
+                themeColor : "0072C6",
+                title : curUserName + " Build PENDING",
+                sections:[
+                    [
+                        facts:[
+                            [
+                                name: "Result",
+                                value: "PENDING"
+                            ],
+                            [
+                                name: "Reason",
+                                value: "this commit not include source file change"
+                            ]
+                        ],
+                        text : "Commit ID : " + nowDeployCommitId
+                    ]
+                ]
+            ]
+
+            def json_str = JsonOutput.toJson(jsonData)
+            def json_beauty = JsonOutput.prettyPrint(json_str)
+            writeFile(file: 'jsonResult', text: json_beauty, encoding: 'UTF-8')
+            bat(script: """curl -d @jsonResult -H "Content-Type: Application/JSON" -X POST ${teamsUrl}""")
+
             println('not have solution file')
         }
         writeFile(file: 'lastDeployCommitId', text:nowDeployCommitId, encoding: 'UTF-8')
