@@ -11,8 +11,8 @@ node {
     JsonBuilder builder = new JsonBuilder()
 
     builder {
-        @type('MessageCard')
-        @context(extentionUrl)
+        '@type'('MessageCard')
+        '@context'(extentionUrl)
         themeColor('0072C6')
         title
         sections(
