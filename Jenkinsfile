@@ -78,7 +78,7 @@ node {
         if(existsFile) {
             println('have solution file')
 
-            buildState = powershell(script:"""MSBuild.exe ${fileName}""", returnStatus: true).trim()
+            buildState = powershell(script:"""MSBuild.exe ${fileName}""", returnStatus: true)
 
             if(buildState == 0) {
                 println('Build Success!!')
