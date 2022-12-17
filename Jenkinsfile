@@ -29,7 +29,9 @@ node {
 
         } else {
             println('First build branch!')
+            nowDeployCommitId = powershell(script:'git rev-parse HEAD', returnStdout: true).trim()
 
+            println('nowDeployCommitId='+nowDeployCommitId)
             isModified = powershell(script:'git ls-files', returnStdout: true).trim()
         }
         
