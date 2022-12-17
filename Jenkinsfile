@@ -1,5 +1,7 @@
 node {
     def codeDir = 'study_code'
+    def teamsUrl = 'https://o365hanbat.webhook.office.com/webhookb2/5371f5fd-f356-4ec5-8ebb-20dca50659d1@3109d4ab-a27d-423a-9e49-89bd4003003a/IncomingWebhook/7a88e98ec41047a9bcd9a04c86537f37/c0dae810-7805-4765-b4fb-25219cdadd79'
+    def extentionUrl = 'https://schema.org/extensions'
     def lastDeployCommitId
     def nowDeployCommitId
     def curUserName
@@ -47,7 +49,10 @@ node {
                 if(dirname == codeDir) {
                     if(curUserName != ModifiedSplitted[1]) {
                         if(userCounter != 0) {
-                            println('other user directory use!')                            //after done, need to send push message
+                            notiTitle = curUserName + ' Build Result' + nowDeployCommitId
+                            notiText = 'Result : FAIL\n' + 'reason : other user directory use!\n'
+                            bat(script: """curl -d "{\"@context\":\"${extentionUrl}\",\"@type\":\"MessageCard\",\"themeColor\":\"0072C6\",\"title\":\"${notiTitle}\",\"text\":\"${notiText}\"}" -H "Content-Type: Application/JSON" -X POST ${teamsUrl}""")
+                            println('other user directory use!')
                             currentBuild.result = 'FAILURE'
                             return 1
                         }
@@ -57,7 +62,10 @@ node {
                     
                     if(curWorkDir != ModifiedSplitted[2]) {
                         if(dirCounter != 0) {
-                            println('mutiple work directory use!')                            //after done, need to send push message
+                            notiTitle = curUserName + ' Build Result' + nowDeployCommitId
+                            notiText = 'Result : FAIL\n' + 'reason : mutiple work directory use!\n'
+                            bat(script: """curl -d "{\"@context\":\"${extentionUrl}\",\"@type\":\"MessageCard\",\"themeColor\":\"0072C6\",\"title\":\"${notiTitle}\",\"text\":\"${notiText}\"}" -H "Content-Type: Application/JSON" -X POST ${teamsUrl}""")
+                            println('mutiple work directory use!')
                             currentBuild.result = 'FAILURE'
                             return 1
                         }
@@ -83,13 +91,22 @@ node {
             buildState = powershell(script:"""MSBuild.exe ${fileName}""", returnStatus: true)
 
             if(buildState == 0) {
+                notiTitle = curUserName + ' Build Result' + nowDeployCommitId
+                notiText = 'Result : SUCCESS\n'
+                bat(script: """curl -d "{\"@context\":\"${extentionUrl}\",\"@type\":\"MessageCard\",\"themeColor\":\"0072C6\",\"title\":\"${notiTitle}\",\"text\":\"${notiText}\"}" -H "Content-Type: Application/JSON" -X POST ${teamsUrl}""")
                 println('Build Success!!')
             }
             else {
+                notiTitle = curUserName + ' Build Result' + nowDeployCommitId
+                notiText = 'Result : FAIL\n' + 'reason : build fail\n'
+                bat(script: """curl -d "{\"@context\":\"${extentionUrl}\",\"@type\":\"MessageCard\",\"themeColor\":\"0072C6\",\"title\":\"${notiTitle}\",\"text\":\"${notiText}\"}" -H "Content-Type: Application/JSON" -X POST ${teamsUrl}""")
                 println('Build Fail!!')
             }
             
         } else {
+            notiTitle = curUserName + ' Build Result' + nowDeployCommitId
+            notiText = 'Result : PENDING\n' + 'reason : not include source change\n'
+            bat(script: """curl -d "{\"@context\":\"${extentionUrl}\",\"@type\":\"MessageCard\",\"themeColor\":\"0072C6\",\"title\":\"${notiTitle}\",\"text\":\"${notiText}\"}" -H "Content-Type: Application/JSON" -X POST ${teamsUrl}""")
             println('not have solution file')
         }
         writeFile(file: 'lastDeployCommitId', text:nowDeployCommitId, encoding: 'UTF-8')
