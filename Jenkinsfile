@@ -15,20 +15,23 @@ node {
         if(existsFile) {
             println('Exist Last Commit Id!!')
             lastDeployCommitId = (readFile(file: 'lastDeployCommitId', encoding: 'UTF-8')).trim()
+
+            nowDeployCommitId = powershell(script:'git rev-parse HEAD', returnStdout: true).trim()
+
+            println('lastDeployCommitId='+lastDeployCommitId)
+            println('nowDeployCommitId='+nowDeployCommitId)
+            
+            bat(script: """git diff --name-only --output=modifiedList --diff-filter=AM ${lastDeployCommitId}..${nowDeployCommitId}""")
+            
+            bat(script: """git diff --name-only --output=deletedList --diff-filter=D ${lastDeployCommitId}..${nowDeployCommitId}""")
+
+            isModified = (readFile(file: 'modifiedList', encoding: 'UTF-8')).trim()
+
         } else {
-            println('Not Exist Last Commit Id!!')
-            lastDeployCommitId = powershell(script:'git rev-parse HEAD', returnStdout: true).trim()
+            println('First build branch!')
+
+            isModified = powershell(script:'git ls-files', returnStdout: true).trim()
         }
-        nowDeployCommitId = powershell(script:'git rev-parse HEAD', returnStdout: true).trim()
-        
-        println('lastDeployCommitId='+lastDeployCommitId)
-        println('nowDeployCommitId='+nowDeployCommitId)
-        
-        bat(script: """git diff --name-only --output=modifiedList --diff-filter=AM ${lastDeployCommitId}..${nowDeployCommitId}""")
-        
-        bat(script: """git diff --name-only --output=deletedList --diff-filter=D ${lastDeployCommitId}..${nowDeployCommitId}""")
-        
-        isModified = (readFile(file: 'modifiedList', encoding: 'UTF-8')).trim()
         
         ModifiedLine = isModified.split('\n')
         
@@ -44,6 +47,7 @@ node {
                         if(userCounter != 0) {
                             println('other user directory use!')                            //after done, need to send push message
                             currentBuild.result = 'FAILURE'
+                            return 1
                         }
                         userCounter++
                     }
@@ -53,6 +57,7 @@ node {
                         if(dirCounter != 0) {
                             println('mutiple work directory use!')                            //after done, need to send push message
                             currentBuild.result = 'FAILURE'
+                            return 1
                         }
                         dirCounter++
                     }
@@ -72,7 +77,15 @@ node {
         
         if(existsFile) {
             println('have solution file')
-            bat(script: """MSBuild.exe ${fileName}""")
+
+            buildState = powershell(script:"""MSBuild.exe ${fileName}""", returnStatus: true).trim()
+
+            if(buildState == 0) {
+                println('Build Success!!')
+            }
+            else {
+                println('Build Fail!!')
+            }
             
         } else {
             println('not have solution file')
