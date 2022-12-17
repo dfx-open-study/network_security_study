@@ -2,7 +2,7 @@ import groovy.json.JsonOutput
 
 node {
     def codeDir = 'study_code'
-    def teamsUrl = 'https://o365hanbat.webhook.office.com/webhookb2/5371f5fd-f356-4ec5-8ebb-20dca50659d1@3109d4ab-a27d-423a-9e49-89bd4003003a/IncomingWebhook/7a88e98ec41047a9bcd9a04c86537f37/c0dae810-7805-4765-b4fb-25219cdadd79'
+    def teamsUrl = 'https://o365hanbat.webhook.office.com/webhookb2/5371f5fd-f356-4ec5-8ebb-20dca50659d1@3109d4ab-a27d-423a-9e49-89bd4003003a/IncomingWebhook/e4717b77bde143099c89f90c0d401d6e/c0dae810-7805-4765-b4fb-25219cdadd79'
     def extentionUrl = 'https://schema.org/extensions'
     def lastDeployCommitId
     def nowDeployCommitId
