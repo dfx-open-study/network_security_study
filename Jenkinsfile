@@ -8,6 +8,33 @@ node {
     def curWorkDir
     def userCounter = 0
     def dirCounter = 0
+    JsonBuilder builder = new JsonBuilder()
+
+    builder {
+        @type('MessageCard')
+        @context(extentionUrl)
+        themeColor('0072C6')
+        title
+        sections(
+            [
+                {
+                    facts(
+                        [
+                            {
+                                name
+                                value
+                            }
+                            {
+                                name
+                                value
+                            }
+                        ]
+                    )
+                }
+            ]
+        )
+    }
+
     stage('Git Clone') {
         git(url:'https://github.com/dfx-open-study/network_security_study.git')
     }
@@ -49,9 +76,13 @@ node {
                 if(dirname == codeDir) {
                     if(curUserName != ModifiedSplitted[1]) {
                         if(userCounter != 0) {
-                            notiTitle = curUserName + ' Build Result' + nowDeployCommitId
-                            notiText = 'Result : FAIL\n' + 'reason : other user directory use!\n'
-                            bat(script: """curl -d "{\"@context\":\"${extentionUrl}\",\"@type\":\"MessageCard\",\"themeColor\":\"0072C6\",\"title\":\"${notiTitle}\",\"text\":\"${notiText}\"}" -H "Content-Type: Application/JSON" -X POST ${teamsUrl}""")
+                            builder.title = curUserName + ' Build FAIL' + nowDeployCommitId
+                            builder.sections[0].facts[0].name = 'Result'
+                            builder.sections[0].facts[0].value = 'FAIL'
+                            builder.sections[0].facts[1].name = 'Reason'
+                            builder.sections[0].facts[1].value = 'other user directory use!'
+                            writeFile(file: 'jsonResult', text:builder.toPrettyString(), encoding: 'UTF-8')
+                            bat(script: """curl -d @jsonResult -H "Content-Type: Application/JSON" -X POST ${teamsUrl}""")
                             println('other user directory use!')
                             currentBuild.result = 'FAILURE'
                             return 1
@@ -91,9 +122,16 @@ node {
             buildState = powershell(script:"""MSBuild.exe ${fileName}""", returnStatus: true)
 
             if(buildState == 0) {
-                notiTitle = curUserName + ' Build Result' + nowDeployCommitId
-                notiText = 'Result : SUCCESS\n'
-                bat(script: """curl -d "{\"@context\":\"${extentionUrl}\",\"@type\":\"MessageCard\",\"themeColor\":\"0072C6\",\"title\":\"${notiTitle}\",\"text\":\"${notiText}\"}" -H "Content-Type: Application/JSON" -X POST ${teamsUrl}""")
+                builder.title = curUserName + ' Build SUCCESS' + nowDeployCommitId
+                builder.sections[0].facts[0].name = 'Result'
+                builder.sections[0].facts[0].value = 'SUCCESS'
+                builder.sections[0].facts[1].name = 'Reason'
+                builder.sections[0].facts[1].value = 'good'
+                writeFile(file: 'jsonResult', text:builder.toPrettyString(), encoding: 'UTF-8')
+                bat(script: """curl -d @jsonResult -H "Content-Type: Application/JSON" -X POST ${teamsUrl}""")
+                //notiTitle = curUserName + ' Build Result' + nowDeployCommitId
+                //notiText = 'Result : SUCCESS\n'
+                //bat(script: """curl -d "{\"@context\":\"${extentionUrl}\",\"@type\":\"MessageCard\",\"themeColor\":\"0072C6\",\"title\":\"${notiTitle}\",\"text\":\"${notiText}\"}" -H "Content-Type: Application/JSON" -X POST ${teamsUrl}""")
                 println('Build Success!!')
             }
             else {
