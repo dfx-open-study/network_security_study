@@ -19,8 +19,8 @@ node {
         def existsFile = fileExists('lastDeployCommitId')
         if(existsFile) {
             println('Exist Last Commit Id!!')
-            lastDeployCommitId = (readFile(file: 'lastDeployCommitId', encoding: 'UTF-8')).trim()
 
+            lastDeployCommitId = (readFile(file: 'lastDeployCommitId', encoding: 'UTF-8')).trim()
             nowDeployCommitId = powershell(script:'git rev-parse HEAD', returnStdout: true).trim()
 
             println('lastDeployCommitId='+lastDeployCommitId)
@@ -34,14 +34,16 @@ node {
 
         } else {
             println('First build branch!')
-            String commitId = powershell(script:'git log -2 --pretty=format:"%H"', returnStdout: true).trim()
-            commitArr = commitId.split('\n')
-            nowDeployCommitId = commitArr[0]
-            lastDeployCommitId = commitArr[1]
+
+            nowDeployCommitId = powershell(script:'git rev-parse HEAD', returnStdout: true).trim()
+            lastDeployCommitId = powershell(script:"""git show --pretty=format:"%H" ${nowDeployCommitId}^^""", returnStdout: true).trim()
+
+            println('lastDeployCommitId='+lastDeployCommitId)
+            println('nowDeployCommitId='+nowDeployCommitId)
 
             bat(script: """git diff --name-only --output=modifiedList --diff-filter=AM ${lastDeployCommitId}..${nowDeployCommitId}""")
 
-            println('nowDeployCommitId='+nowDeployCommitId)
+            bat(script: """git diff --name-only --output=deletedList --diff-filter=D ${lastDeployCommitId}..${nowDeployCommitId}""")
             
             isModified = (readFile(file: 'modifiedList', encoding: 'UTF-8')).trim()
         }
