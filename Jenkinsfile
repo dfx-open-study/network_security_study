@@ -12,7 +12,7 @@ node {
     def dirCounter = 0
 
     stage('Git Clone') {
-        git(url:'https://github.com/dfx-open-study/network_security_study.git')
+        git branch:env.BRANCH_NAME, url:'https://github.com/dfx-open-study/network_security_study.git'
     }
 
     stage('Check File change') {
@@ -36,7 +36,7 @@ node {
             println('First build branch!')
 
             nowDeployCommitId = powershell(script:'git rev-parse HEAD', returnStdout: true).trim()
-            lastDeployCommitId = powershell(script:"""git show --pretty=format:"%H" ${nowDeployCommitId}^^""", returnStdout: true).trim()
+            lastDeployCommitId = powershell(script:'git rev-parse HEAD^^', returnStdout: true).trim()
 
             println('lastDeployCommitId='+lastDeployCommitId)
             println('nowDeployCommitId='+nowDeployCommitId)
