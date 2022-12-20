@@ -35,7 +35,7 @@ node {
         } else {
             println('First build branch!')
             String commitId = powershell(script:'git log -2 --pretty=format:"%H"', returnStdout: true).trim()
-            commitArr = commitId.split('/n')
+            commitArr = commitId.split('\n')
             nowDeployCommitId = commitArr[0]
             lastDeployCommitId = commitArr[1]
 
