@@ -34,10 +34,16 @@ node {
 
         } else {
             println('First build branch!')
-            nowDeployCommitId = powershell(script:'git rev-parse HEAD', returnStdout: true).trim()
+            String commitId = powershell(script:'git log -2 --pretty=format:"%H"', returnStdout: true).trim()
+            commitArr = commitId.split('/n')
+            nowDeployCommitId = commitArr[0]
+            lastDeployCommitId = commitArr[1]
+
+            bat(script: """git diff --name-only --output=modifiedList --diff-filter=AM ${lastDeployCommitId}..${nowDeployCommitId}""")
 
             println('nowDeployCommitId='+nowDeployCommitId)
-            isModified = powershell(script:'git ls-files', returnStdout: true).trim()
+            
+            isModified = (readFile(file: 'modifiedList', encoding: 'UTF-8')).trim()
         }
         
         ModifiedLine = isModified.split('\n')
