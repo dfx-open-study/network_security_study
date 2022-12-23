@@ -48,7 +48,7 @@ void push(Stack* s, int item) {
 int pop(Stack *s)
 {
 	if (is_empty(s)) {
-		printf("스택이 비어있음\n");
+		return s->top == NULL;
 	}
 	else {
 		Node* temp = s->top;
