@@ -44,6 +44,12 @@ void push(Stack* s, int item) {
 	s->top = temp;
 }
 
+// 이런 방식은 좋지 않습니다.
+// pop 할 시에 return 값으로 저장되어있는 value 를 전달하는 방식은
+// 만약 stack 자체에 문제가 있다면 문제 상황을 전달 해주지 못합니다.
+// 그러므로 parameter로 데이터를 넘겨주는 방식을 사용하고
+// return 값은 success or error state 를 넘겨주는 방식을 사용 하셔야 합니다.
+/*
 // 삭제
 int pop(Stack *s)
 {
@@ -59,6 +65,27 @@ int pop(Stack *s)
 		return data;
 	}
 }
+*/
+
+// ex) 삭제
+// return : (0 : 정상) (-1 : 스택이 비어있음) (-2 : Value 포인터가 NULL)
+int pop(Stack *s, int *Value)
+{
+	if(is_empty(s)) {
+		return -1;
+	}
+	else {
+		if(Value == NULL)
+			return -2;
+		Node* temp = s->top;
+		*Value = temp->data;
+
+		s->top = s->top->link;
+		free(temp);
+		return 0;
+	}
+}
+
 
 // 출력
 void print_stack(Stack* s) 
@@ -71,12 +98,30 @@ void print_stack(Stack* s)
 int main(void)
 {
 	Stack s;
+	int TempValue;
+	int result;
+
 	init(&s);
 	push(&s, rand()%90); print_stack(&s);
 	push(&s, rand()%90); print_stack(&s);
 	push(&s, rand()%90); print_stack(&s);
-	pop(&s); print_stack(&s);
-	pop(&s); print_stack(&s);
-	pop(&s); print_stack(&s);
+	
+	result = pop(&s, &TempValue);
+	if(result == 0)
+		printf("POP VALUE : %d", TempValue);
+	 print_stack(&s);
+
+	result = pop(&s, &TempValue);
+	if(result == 0)
+		printf("POP VALUE : %d", TempValue);
+	 print_stack(&s);
+
+	result = pop(&s, &TempValue);
+	if(result == 0)
+		printf("POP VALUE : %d", TempValue);
+	 print_stack(&s);
+	//pop(&s); print_stack(&s);
+	//pop(&s); print_stack(&s);
+	//pop(&s); print_stack(&s);
 	return 0;
 }
