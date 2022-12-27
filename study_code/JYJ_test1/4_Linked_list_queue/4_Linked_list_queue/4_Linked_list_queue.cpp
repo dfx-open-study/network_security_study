@@ -64,13 +64,13 @@ int dequeue(Queue* q, int* Value)
     }
     else
     {
-        temp = q->front;
-        data = temp->data;
-        q->front = temp->link;
-
-        if (Value == NULL)
+        if (Value == NULL) 
             return -2;
             q->rear == NULL;
+        
+        temp = q->front;
+        *Value = temp->data;
+        q->front = temp->link;
 
         free(temp);
         q->size--;
