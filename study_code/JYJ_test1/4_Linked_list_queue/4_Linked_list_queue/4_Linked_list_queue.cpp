@@ -53,13 +53,14 @@ void enqueue(Queue* q, int data)
     }
 }
 
-int dequeue(Queue* q)
+int dequeue(Queue* q, int* Value)
 {
     int data;
     Node *temp;
     if (IsEmpty(q))//큐가 비었을 때
-    {
-        return q->size = 0;
+    { 
+        q->size = 0;
+        return -1;
     }
     else
     {
@@ -67,12 +68,13 @@ int dequeue(Queue* q)
         data = temp->data;
         q->front = temp->link;
 
-        if (q->front == NULL)
+        if (Value == NULL)
+            return -2;
             q->rear == NULL;
 
         free(temp);
         q->size--;
-        return data;
+        return 0;
     }
 }
 
@@ -88,7 +90,9 @@ void print_queue(Queue* q)
 int main()
 {
     Queue que;
-    
+    int TempValue;
+    int result;
+
     Init(&que);
 
     srand(time(NULL));
@@ -105,8 +109,10 @@ int main()
 
     for (j = 0; j<=num2; j++)
     {
-        dequeue(&que);
-        print_queue(&que);
+        result = dequeue(&que, &TempValue);
+        if (result == 0)
+            printf("dequeue value : %d\n", TempValue);
+        print_queue(& que);
     }
     return 0;
 }
