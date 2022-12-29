@@ -1,69 +1,110 @@
 #include <iostream>
-#define INF 987654321
+#include <ctime>
+#include <cstdlib>
 using namespace std;
 
+template <typename T>
+class Node
+{
+public:
+	T value;
+	Node* next;
 
-
-struct Node {
-    int data;
-    Node* next;
+	Node() :value(0), next(nullptr) {};
+	~Node() {};
 };
 
-struct LinkedQueue {
-    Node* front, * back;
-    int len = 0;
-    LinkedQueue() {
-        front = back = NULL;
-    }
-    int size() {
-        return len;
-    }
+template <typename T>
+class Queue
+{
+public:
+	Queue() :head(nullptr), tail(nullptr), size(0) {};
+	~Queue() {};
 
-    bool isEmpty() {
-        return len == 0;
-    }
+	void Enqueue(T _vaule);
+	T Dequeue();
+	bool empty();
 
-    void enqueue(int data) {
-        Node* node = (Node*)malloc(sizeof(Node));
-        node->data = data;
-        node->next = NULL;
-        if (isEmpty()) {
-            front = back = node;
-        }
-        else {
-            back->next = node;
-            back = back->next;
-        }
-        len++;
-        printf("%d\n", size());
-    }
-
-    int dequeue() {
-
-        if (isEmpty()) {
-            cout << "Q is empty" << endl;
-            return INF;
-        }
-
-        Node* delNode = front;
-        int ret = delNode->data;
-        front = delNode->next;
-        free(delNode);
-        len--;
-        printf("%d\n", size());
-        return ret;
-    }
+private:
+	Node<T>* head;
+	Node<T>* tail;
+	int size;
 };
 
-int main() {
+int main()
+{
+	srand((unsigned int)time(NULL));
+	int i = 0;
+	int j = 0;
+	int randnum = 0;
+	randnum = rand() % 10;
 
-    LinkedQueue q;
-    for (int i = 1; i <= 5; i++) {
-        q.enqueue(i);
-        
-    }
+	Queue<int> queue;
+	for (i; i < randnum; i++) {
+		queue.Enqueue(rand());
 
-    while (!q.isEmpty())
-        cout << q.dequeue() << endl;
+	}
+	
+	for (j; j < randnum; j++) {
 
+		printf( "%d\n ",queue.Dequeue());
+		
+	}
+	return 0;
+}
+
+template<typename T>
+void Queue<T>::Enqueue(T _vaule)
+{
+	Node<T>* newNode = new Node<T>;
+	newNode->value = _vaule;
+	size++;
+
+	if (head == nullptr)
+	{
+		head = newNode;
+		tail = newNode;
+	}
+	else
+	{
+		tail->next = newNode;
+		tail = tail->next;
+	}
+
+}
+
+template<typename T>
+T Queue<T>::Dequeue()
+{
+	size--;
+	if (empty())
+		return -1;
+	else
+	{
+		Node<T>* ptr = head;
+		T vaule = head->value;
+
+		if (head == tail)
+		{
+			head = nullptr;
+			tail = nullptr;
+			delete(head);
+		}
+		else
+		{
+			ptr = ptr->next;
+			delete(head);
+			head = ptr;
+		}
+		return vaule;
+	}
+}
+
+template<typename T>
+bool Queue<T>::empty()
+{
+	if (tail == nullptr)
+		return true;
+	else
+		return false;
 }

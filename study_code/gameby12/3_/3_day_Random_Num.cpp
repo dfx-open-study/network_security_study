@@ -1,58 +1,129 @@
 #include<stdio.h>
-#include<stdlib.h>
 #include<cstdlib>
 #include<ctime>
+#include<iostream>
 
-int* Stack;
-int Size;
-int Top;
 
-void InitStack(int aSize)
+using namespace std;
+
+template <typename T>
+
+class Node
 {
-    Size = aSize;
-    Stack = (int*)malloc(Size * sizeof(int));
-    Top = -1;
+public:
+	T value;
+	Node<T>* next = nullptr;
+	Node() {};
+	~Node() {};
+};
+
+template <typename T>
+
+class Stack
+{
+private:
+	Node<T>* head;
+	Node<T>* tail;
+public:
+	Stack() :head(nullptr), tail(nullptr) {}
+	~Stack() { }
+	void Push(T value);
+	T Pop();
+	bool isEmpty();
+	T Top();
+};
+
+
+int main()
+{
+	srand((unsigned int)time(NULL));
+	Stack<int> stack;
+	stack.Push(rand());
+	stack.Push(rand());
+	stack.Push(rand());
+	stack.Push(rand());
+	stack.Push(rand());
+
+	
+
+	printf("%d\n", stack.Pop());
+	printf("%d\n", stack.Pop());
+	printf("%d\n", stack.Pop());
+	printf("%d\n", stack.Pop());
+	printf("%d\n", stack.Pop());
+	printf("%d\n", stack.Pop());
+
 }
 
-void FreeStack()
+template<typename T>
+
+bool Stack<T>::isEmpty() 
 {
-    free(Stack);
+	return tail == nullptr ? true : false;
 }
 
- void Push(int data)
+template<typename T>
+
+T Stack<T>::Top()
 {
-    if (Top < Size - 1) {
-        Top++;
-        Stack[Top] = data;
-        return ;
-    }
-    else {
-        return ;
-    }
+	return tail->value;
 }
 
-int Pop()
+
+template<typename T>
+void Stack<T>::Push(T _value)
 {
-    if (Top >= 0) {
-        return Stack[Top--];
-    }
-    else {
-        return -1;
-    }
+	Node<T>* node = new Node<T>;
+	node->value = _value;
+
+	if (head == nullptr)
+	{
+		head = node;
+		tail = node;
+	}
+	else
+	{
+		tail->next = node;
+		tail = tail->next;
+	}
 }
 
-void main()
+template<typename T>
+T Stack<T>::Pop()
 {
-    InitStack(256);
-    Push(rand());
-    Push(rand());
-    Push(rand());
-    Push(rand());
-    Push(rand());
-    printf("%d\n", Pop());
-    printf("%d\n", Pop());
-    printf("%d\n", Pop());
-    printf("%d\n", Pop());
-    printf("%d\n", Pop());
-    FreeStack();
+	if (isEmpty()) 
+	{
+		return -1;
+	}
+	else
+	{
+		Node<T>* ptr = head;
+		T value = head->value;
+
+		if (head == tail)
+		{
+			head = nullptr;
+			tail = nullptr;
+			delete(head);
+		}
+		else
+		{
+			while (ptr != nullptr)
+			{
+				
+				if (ptr->next == tail)
+				{
+					value = tail->value;
+					ptr->next = nullptr;
+					delete(tail);
+					tail = ptr;
+					break;
+				}
+				ptr = ptr->next;
+			}
+			return value;
+		}
+
+		return value;
+	}
 }
