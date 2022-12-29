@@ -15,4 +15,7 @@
         [4일차 STUDY & TASK 내용](/doc/day4.md)
     * 5일차   
         [5일차 STUDY & TASK 내용](/doc/day5.md)
-        
+    * 6일차   
+        [6일차 STUDY & TASK 내용](/doc/day6.md)
+    * 7일차   
+        [7일차 STUDY & TASK 내용](/doc/day7.md)
