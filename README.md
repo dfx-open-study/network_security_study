@@ -19,3 +19,13 @@
         [6일차 STUDY & TASK 내용](/doc/day6.md)
     * 7일차   
         [7일차 STUDY & TASK 내용](/doc/day7.md)
+    * 8일차   
+        [8일차 STUDY & TASK 내용](/doc/day8.md)
+    * 9일차   
+        [9일차 STUDY & TASK 내용](/doc/day9.md)
+    * 10일차   
+        [10일차 STUDY & TASK 내용](/doc/day10.md)
+    * 11일차   
+        [11일차 STUDY & TASK 내용](/doc/day11.md)
+    * 12일차   
+        [12일차 STUDY & TASK 내용](/doc/day12.md)
