@@ -29,3 +29,7 @@
         [11일차 STUDY & TASK 내용](/doc/day11.md)
     * 12일차   
         [12일차 STUDY & TASK 내용](/doc/day12.md)
+    * 13일차   
+        [13일차 STUDY & TASK 내용](/doc/day13.md)
+    * 14일차   
+        [14일차 STUDY & TASK 내용](/doc/day14.md)
